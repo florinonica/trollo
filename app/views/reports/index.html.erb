@@ -1,0 +1,22 @@
+<style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+}
+</style>
+
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %>
+
+<table cellpadding=15 cellspacing=15 style='text-align: center; border-collapse: separate; border-spacing: 0 20px; margin-left: 400px'>
+  <% @reports.each do |report| %>
+    <tr>
+      <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px;'>
+        <%= link_to report.title, report_path(report), {data: {turbolinks: 'false'}, :style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br>
+      </td>
+    </tr>
+  <% end %>
+</table>
+
+<div style = 'text-align: center'>
+  <%= will_paginate @reports, renderer: BootstrapPagination::Rails %>
+</div>

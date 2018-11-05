@@ -1,0 +1,113 @@
+<style type="text/css">
+  body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 16px;
+}
+</style>
+
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %>
+
+<h2>Create User</h2>
+
+<%= form_for User.new, url: create_user_path do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2>
+        <%= pluralize(@user.errors.count, "error") %> prohibited
+        this user from being saved:
+      </h2>
+      <ul>
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :username %><br />
+      <%= f.text_field :username, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :first_name %><br />
+      <%= f.text_field :first_name, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :last_name %><br />
+      <%= f.text_field :last_name, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :email %><br />
+      <%= f.email_field :email, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :password %>
+      <% if @minimum_password_length %>
+      <em>(<%= @minimum_password_length %> characters minimum)</em>
+      <% end %><br />
+      <%= f.password_field :password, class: 'form-control', autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :password_confirmation %><br />
+      <%= f.password_field :password_confirmation, class: 'form-control', autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :nickname %><br />
+      <%= f.text_field :nickname, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :position %><br />
+      <%= f.text_field :position, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :address %><br />
+      <%= f.text_field :address, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+<br>
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :type %> 
+      <%= f.select :type, ["Client", "Employee", "Superuser"], class: 'form-control', autofocus: true%>
+    </div>
+  </div>
+<br>
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.collection_check_boxes :role_ids, Role.all, :id, :role_type, multiple: true, include_hidden: false, include_blank: false do |b|%>
+          <%= b.check_box %>
+          <%= b.label %>
+      <%end %>
+    </div>
+  </div>
+<br>
+  <div class="actions">
+    <%= f.submit "Add user", {class: "btn btn-info collapsed", style:'font-size: 20px; font-family: "Ubuntu"'} %>
+  </div>
+<% end %>
+

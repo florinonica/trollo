@@ -1,0 +1,101 @@
+<style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+}
+</style>
+
+<%= form_with model: @report, local: true do |form| %>
+  <div style='margin-bottom: 50px; width: 500px'>
+    <%= form.label :title %><br>
+    <%= form.text_field :title, class: 'form-control' %>
+  </div>
+
+  <div style='display:flex;  margin-top:' >
+    <div>
+      <h4>Start date </h4>
+      <%= form.date_field :start_date, style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-right: 100px; margin-bottom: 20px; ' %>
+    </div>
+    <div>
+      <h4>End date </h4>
+      <%= form.date_field :end_date, style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-bottom: 20px;' %>
+    </div>
+  </div>
+
+  <div style='display:flex'>
+    <div>
+      <h3>Select employees </h3>
+      <input type="checkbox" id="selectAll" value="selectAll">All<br/>
+      <div title='Select employees' style='overflow-y: scroll; height: auto; max-height:200px; width: 500px; margin-top: 20px; margin-right: 40px; margin-bottom: 40px'>
+        <%= form.collection_check_boxes :user_ids, Employee.all, :id, :full_name, multiple: true, include_hidden: false, include_blank: false do |b|%>
+          <div style='margin-bottom: 10px; margin-top: 10px; margin-left: 10px;'>
+            <%= b.check_box class: "c1" %>
+            <%= b.label %>
+          </div>
+        <%end %>
+      </div>
+    </div>
+
+    <div>
+      <h3>Select projects </h3>
+      <input type="checkbox" id="selectAll1" value="selectAll1">All<br/>
+      <div style='overflow-y: scroll; height: auto; max-height:200px; width: 500px; margin-top: 20px; margin-bottom: 40px'>
+        <%= form.collection_check_boxes :project_ids, Project.all, :id, :title, multiple: true, include_hidden: false, include_blank: false do |b|%>
+          <div style='margin-bottom: 10px; margin-top: 10px; margin-left: 10px;'>
+            <%= b.check_box class: "c2" %>
+            <%= b.label %>
+          </div>
+        <%end %>
+      </div>
+    </div>
+  </div>
+
+  <div style='display:flex'>
+    <div style='color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-right: 200px; margin-bottom: 50px'>
+      <h4>Choose ticket type </h4>
+      <%= form.select :ticket_type, options_for_select(["All", ["Bug", "1"], ["Task", "0"]]), style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 100px; text-align: center; margin-right: 200px; margin-bottom: 50px' %>
+    </div>
+    <div style='color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-right: 200px; margin-bottom: 50px'>
+      <h4>Choose ticket status </h4>
+      <%= form.select :ticket_status, options_for_select(["All", "To do", "In progress", "Dev complete", "Done"]), style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 100px; text-align: center; margin-right: 200px;' %>
+    </div>
+    <div style='display:flex; margin-top: 20px;' >
+      <h4 style=' margin-right: 20px;'> Make available to clients <h4>
+      <%= form.check_box :available_to_clients, style: 'width: 100px; height: 100px'%>
+    </div>
+  </div>
+
+  <div style='display:flex; align-content: stretch'>
+    <div style='display:flex; margin-top: 20px' >
+      <h4 style=' margin-right: 20px;'> Include employee performance chart <h4>
+      <%= form.check_box :include_employee_statistics, style: 'width: 100px; height: 100px'%>
+    </div>
+    <div style='display:flex; margin-top: 20px' >
+      <h4 style=' margin-right: 20px;'> Include ticket statistics <h4>
+      <%= form.check_box :include_ticket_statistics, style: 'width: 100px; height: 100px'%>
+    </div>
+    <div style='display:flex; margin-top: 20px' >
+      <h4 style=' margin-right: 20px;'> Event log <h4>
+      <%= form.check_box :include_event_log, style: 'width: 100px; height: 100px'%>
+    </div>
+  </div>
+  <div style='display:flex'>
+    <div style='display:flex; margin-top: 20px' >
+      <h4 style=' margin-right: 20px;'> Include ticket timeline<h4>
+      <%= form.check_box :include_ticket_timeline, style: 'width: 100px; height: 100px'%>
+    </div>
+    <div style='display:flex; margin-top: 20px' >
+      <h4 style=' margin-right: 20px;'> Show ticket distribution by type<h4>
+      <%= form.check_box :include_ticket_distribution_type, style: 'width: 100px; height: 100px'%>
+    </div>
+    <div style='display:flex; margin-top: 20px' >
+      <h4 style=' margin-right: 20px;'> Show ticket distribution by status<h4>
+      <%= form.check_box :include_ticket_distribution_status, style: 'width: 100px; height: 100px'%>
+    </div>
+  </div>
+
+  <p>
+    <%= form.submit 'Generate report', {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+  </p>
+
+<% end %>

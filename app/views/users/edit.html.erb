@@ -1,0 +1,117 @@
+<style type="text/css">
+  body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 16px;
+}
+</style>
+
+<h2>Edit Profile</h2>
+
+<%= image_tag(@user.avatar.url(:medium)) %>
+
+<%= form_for(@user) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@user.errors.count, "error") %> prohibited this user from being saved:</h2>
+      <ul>
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :avatar %><br />
+    <%= f.file_field :avatar, autofocus: true %>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :username %><br />
+      <%= f.text_field :username, class: 'form-control', autofocus: true, autocomplete: "username" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :first_name %><br />
+      <%= f.text_field :first_name, class: 'form-control', autofocus: true, autocomplete: "firstname" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :last_name %><br />
+      <%= f.text_field :last_name, class: 'form-control', autofocus: true, autocomplete: "lastname" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :nickname %><br />
+      <%= f.text_field :nickname, class: 'form-control', autofocus: true, autocomplete: "nickname" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :address %><br />
+      <%= f.text_field :address, class: 'form-control', autofocus: true, autocomplete: "address" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :position %><br />
+      <%= f.text_field :position, class: 'form-control', autofocus: true, autocomplete: "off" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :email %><br />
+      <%= f.email_field :email, class: 'form-control', autofocus: true, autocomplete: "email" %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
+      <%= f.password_field :password, class: 'form-control', autocomplete: "off" %>
+      <% if @minimum_password_length %>
+        <br />
+        <em><%= @minimum_password_length %> characters minimum</em>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-5">
+      <%= f.label :password_confirmation %><br />
+      <%= f.password_field :password_confirmation, class: 'form-control', autocomplete: "off" %>
+    </div>
+  </div><br>
+
+  <% if @user.can_have_roles?%>
+    <% if (Role.all - @user.roles).count > 0 %>
+      <h4>Select roles(employee only)</h4>
+      <br>
+      <div class="row">
+        <div class="col-xs-5">
+          <%= f.collection_check_boxes :role_ids, Role.all - @user.roles, :id, :role_type, multiple: true, include_hidden: false, include_blank: false do |b|%>
+              <br>
+              <%= b.check_box %>
+              <%= b.label %>
+          <%end %>
+        </div>
+      </div><br>
+    <% end %>
+  <% end %>
+
+  <div class="actions">
+    <%= f.submit "Update", {class: "btn btn-info collapsed"} %>
+  </div>
+<% end %>
+
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %>

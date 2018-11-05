@@ -1,0 +1,56 @@
+<style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+}
+</style>
+<br>
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+<table cellpadding=15 cellspacing=15 style='text-align: center; border-collapse: separate; border-spacing: 0 20px;'>
+  <tr>
+    <th class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 22px; font-weight: bold'>Title</th>
+    <th class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 22px; font-weight: bold'>Manager</th>
+    <th class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 22px; font-weight: bold'>Progress</th>
+    <% if current_user.can_delete_project? %>
+      <th class="col-xs-1" colspan="2" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'></th>
+    <% end %>
+  </tr>
+
+  <% @projects.each do |project| %>
+    <tr>
+
+      <% if current_user.can_see_project_details?%>
+        <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'><%= link_to project.title, dashboard_path(project), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br></td>
+      <% else %>
+        <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'><%= link_to project.title, project_path(project), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br></td>
+      <% end %>
+      
+      <% if project.employees.any? %>
+        <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'><%= link_to project.employees.select{ |e| e.is_manager?(project.id) }.first.full_name, user_path(project.employees.select{ |e| e.is_manager?(project.id) }), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br></td>
+      <% else %>
+        <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 20px; font-weight: bold'>Not assigned yet<br></td>
+      <% end %>
+      <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 15px'> <br>
+        <div class="progress" style='height: 30px; margin-top: -15px'>
+          <div>
+            <strong style='text-align: center; '>
+              <%=project.get_progress_percent.to_s + '%'%>
+            </strong>
+          </div>
+          <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style=" width: <%=project.get_progress_percent.to_i %>%; font-family: 'Ubuntu', sans-serif; font-size: 18px; color: black;margin-top: -25px"></div>
+        </div>
+      </td>
+
+      <% if current_user.can_delete_project? %>
+        <td class="col-xs-1"style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'>
+          <%= link_to '<i class="glyphicon glyphicon-edit"></i> Edit'.html_safe, edit_project_path(project), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%> |
+          <%= link_to '<i class="glyphicon glyphicon-remove"></i> Delete'.html_safe, project_path(project), method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'  %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+<br>
+<div style = 'text-align: center'>
+  <%= will_paginate @projects, renderer: BootstrapPagination::Rails %>
+</div>

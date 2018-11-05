@@ -1,0 +1,32 @@
+<h1>Edit comment</h1>
+<%= form_for [@ticket, @comment] do |form| %>
+  <% if @comment.errors.any?%>
+    <div id="error_explanation">
+      <h2>
+        <%= pluralize(@comment.errors.count, "error") %> prohibited
+        this comment from being saved:
+      </h2>
+      <ul>
+        <% @comment.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+    <%= form.label :body %><br>
+    <%= form.text_area :body %>
+  </p>
+  <div class="row">
+    <div class="col-xs-4">
+      <%= form.label :files %>
+      <%= form.file_field :files, :multiple => true %>
+    </div>
+  </div>
+
+  <p>
+    <%= form.submit "Submit", {class: "btn btn-info collapsed"} %>
+  </p>
+<% end %>
+ 
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> 

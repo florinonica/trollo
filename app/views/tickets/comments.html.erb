@@ -1,0 +1,10 @@
+
+<%= link_to '<i class="glyphicon glyphicon-comment"></i> Add comment'.html_safe, new_ticket_comment_path(@ticket), {class: "btn btn-info collapsed", :style => 'color:white; font-size: 18px; font-weight: bold, background-color: white'} %>
+
+<div id = "comments">
+  <h4>Comments</h4>
+  <%= sync partial: 'comment', collection: @ticket.comments, scope: @ticket %>
+  <%= sync_new partial: 'comment', resource: Comment.new, scope: @ticket %>
+</div><br><br>
+
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>

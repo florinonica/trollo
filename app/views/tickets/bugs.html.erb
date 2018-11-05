@@ -1,0 +1,35 @@
+<strong style='color: black; font-size: 22px; font-family: "Ubuntu", sans-serif;'> Bugs </strong><br><br>
+
+<table cellpadding=15 cellspacing=15 style='text-align: center; border-collapse: separate; border-spacing: 0 20px;'>
+  <tr>
+    <th class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 22px; font-weight: bold'>Title</th>
+    <th class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 22px; font-weight: bold'>Status</th>
+
+    <% if current_user.can_see_project_details? %>
+      <th class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; font-size: 22px; font-weight: bold'>Assigned Dev</th>
+    <% end %>
+
+    <% if current_user.can_delete_project? %>
+      <th class="col-xs-1" colspan="2" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'></th>
+    <% end %>
+  </tr>
+
+  <% @ticket.bugs.paginate(:page => params[:page], per_page:5).each do |bug| %>
+    <tr>
+       <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'><%= link_to bug.title, ticket_path(bug), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br></td>
+       <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px; color:black; font-size: 20px; font-weight: bold'><%= bug.status%><br></td>
+       <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'><%= link_to bug.dev.full_name, user_path(bug.dev), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br></td>
+
+      <% if current_user.can_delete_ticket?(bug) %>
+        <td class="col-xs-1"style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px'>
+          <%= link_to '<i class="glyphicon glyphicon-edit"></i> Edit'.html_safe, edit_project_ticket_path(bug.project, bug), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%> |
+          <%= link_to '<i class="glyphicon glyphicon-remove"></i> Delete'.html_safe, [bug.project, bug], method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'  %>
+        </td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
+
+<div style = 'text-align: center'>
+  <%= will_paginate @ticket.bugs.paginate(:page => params[:page], per_page:5), renderer: BootstrapPagination::Rails %>
+</div>

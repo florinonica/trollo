@@ -1,0 +1,28 @@
+<%= form_with(model: [ @project, @project.posts.build ], local: true) do |form| %>
+  <% if @post.errors.any?%>
+    <div id="error_explanation">
+      <h2> <%= pluralize(@post.errors.count, "error") %> prohibited this post from being saved: </h2>
+      <ul>
+        <% @post.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="row">
+    <div class="col-xs-4">
+    <%= form.text_area :body, class: 'form-control' %>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-xs-4">
+      <%= form.label :files %>
+      <%= form.file_field :files, :multiple => true %>
+    </div>
+  </div>
+  <br>
+  <p>
+    <%= form.submit "Post", {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%>
+  </p>
+<% end %>

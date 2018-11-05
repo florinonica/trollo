@@ -1,0 +1,11 @@
+<h1>Welcome</h1><br>
+
+<% if current_user.can_create_user? %>
+  <%= link_to "Add User", new_user_path, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %><br>
+<% end %><br>
+
+<% if current_user.can_see_all_users? || current_user.can_see_employees? %>
+  <%= link_to '<i class="glyphicon glyphicon-user"></i> Users'.html_safe, users_path, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'}%><br>
+<% end %><br>
+<%= link_to '<i class="glyphicon glyphicon-folder-open"></i> Projects'.html_safe, projects_path, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'}%><br><br>
+<%= link_to "My profile", user_path(current_user), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %>

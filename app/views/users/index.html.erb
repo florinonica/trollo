@@ -1,0 +1,47 @@
+<style>
+body { 
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+}
+</style>
+<div style='display: flex'>
+  <%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, root_path, {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+  <div style='margin-left:auto; margin-right: 20px;'>
+    <% if current_user.can_see_all_users? %>
+      <%= form_tag users_path, :method => 'get', :id => "users_search" do%>
+        <%= select_tag :search, options_for_select(["All", ["Superusers", "0"], ["Employees", "1"], ["Clients", "2"]]), style: 'color:black; font-size: 17px; font-weight: bold; font-family: "Ubuntu"; width: 150px; text-align: center;' %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+<% if current_user.can_see_all_users? %>
+  <div id="m">
+    <%= render partial: "users", locals: {users: @users.search(params[:search])} %>
+  </div>
+
+<% elsif current_user.can_see_employees? %>
+  <table cellpadding=15 cellspacing=15 style='text-align: center; border-collapse: separate; border-spacing: 0 2em;'>
+    <tr>
+      <th class="col-xs-2" style='text-align: center'></th>
+      <th class="col-xs-2" style='text-align: center'>Name</th>
+      <th class="col-xs-2" style='text-align: center'>Email</th>
+      <th colspan="2"></th>
+    </tr>
+
+    <% @users.where(:type => "Employee").each do |user| %>
+      <tr>
+        <td class="col-xs-2"><%= image_tag(user.avatar.url(:thumb), :class => "round-image-50") %></td>
+        <td class="col-xs-2"><%= user.first_name + " " + user.last_name %></td>
+        <td class="col-xs-2"><%= user.email %></td>
+        <td class="col-xs-2"><%= link_to '<i class="glyphicon glyphicon-user"></i> Profile'.html_safe, user_path(user), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %></td>
+      </tr>
+    <% end %>
+  </table>
+  <div style = 'text-align: center'>
+    <%= will_paginate @users.where(:type => "Employee"), renderer: BootstrapPagination::Rails %> 
+  </div>
+
+<% else %>
+  <h1 style="color:red;"> <strong>ACCES DENIED</strong></h1>
+<% end %>
+

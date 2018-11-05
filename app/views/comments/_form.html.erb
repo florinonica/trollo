@@ -1,0 +1,32 @@
+<h4>Add a comment:</h4>
+  <%= form_with(model: [ @ticket, @ticket.comments.build ], local: true) do |form| %>
+    <% if @comment.errors.any?%>
+      <div id="error_explanation">
+        <h2> <%= pluralize(@comment.errors.count, "error") %> prohibited this comment from being saved: </h2>
+        <ul>
+          <% @comment.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <p>
+      <%= form.hidden_field :commenter, :value => current_user.username %>
+    </p>
+    <div class="row">
+      <div class="col-xs-4">
+      <%= form.text_area :body, class: 'form-control' %>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-xs-4">
+        <%= form.label :files %>
+        <%= form.file_field :files, :multiple => true %>
+      </div>
+    </div>
+    <br>
+    <p>
+      <%= form.submit "Submit", {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%>
+    </p>
+<% end %>

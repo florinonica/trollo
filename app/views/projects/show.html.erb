@@ -1,0 +1,92 @@
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+    ['Ticket with status', 'Number of tickets'],
+    ['To do', <%= @project.get_tasks_to_do.count %>],
+    ['In progress', <%= @project.get_tasks_in_progress.count %>],
+    ['Dev complete', <%= @project.get_tasks_dev_complete.count %>],
+    ['Done', <%= @project.get_tasks_done.count %>]
+  ]);
+    var options = {title: "Project status", titleTextStyle: {color: 'black', fontName: 'Ubuntu', fontSize: 20}, pieHole: 0.4, 'width':750, 'height':600,
+      pieSliceTextStyle: {color: 'white', fontName: 'Ubuntu', fontSize: 18}, legendTextStyle: {color: 'black', fontName: 'Ubuntu', fontSize: 18}};
+    var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+    chart.draw(data, options);
+  }
+</script>
+<style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 20px;
+}
+</style>
+
+<div style="margin-left: 100px" class="col-xs-5"><br>
+  <p>
+    <strong style='color:#000000; font-size: 25px;'><%= @project.title %></strong>
+  </p><br>
+
+  <div style="display:flex">
+    <div style="margin-right: 20px">
+      <% if current_user.is_manager?(@project.id) || current_user.is_client?(@project) %>
+        <%= link_to '<i class="glyphicon glyphicon-comment"></i>'.html_safe, message_board_path(@project), {:style => 'color:#0079bf; font-size: 40px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+      <% end %>
+    </div>
+    <div style="margin-right: 20px">
+      <%= link_to '<i class="glyphicon glyphicon-tower"></i>'.html_safe, clients_path(@project), {:style => 'color:#0079bf; font-size: 40px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+    </div>
+    <div style="margin-right: 20px">
+      <%= link_to '<i class="glyphicon glyphicon-file"></i>'.html_safe, files_path(@project),  {:style => 'color:#0079bf; font-size: 40px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+    </div>
+    <div style="margin-right: 20px">
+      <%= link_to '<i class="glyphicon glyphicon-blackboard"></i>'.html_safe, dashboard_path(@project),  {:style => 'color:#0079bf; font-size: 40px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+    </div>
+    <div style="margin-right: 20px">
+      <% if current_user.can_see_project_details?%>
+        <%= link_to '<i class="glyphicon glyphicon-king"></i>'.html_safe, team_path(@project), {:style => 'color:#0079bf; font-size: 40px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+      <% end %>
+    </div>
+  </div><br>
+
+  <% if @project.employees.any? %>
+    <p>
+      <strong>Manager</strong><br>
+      <%= link_to @project.employees.select{ |e| e.is_manager?(@project.id) }.first.full_name, user_path(@project.employees.select{ |e| e.is_manager?(@project.id) }) %>
+    </p>
+    <br>
+  <% end %>
+
+  <p>
+    <strong>Started at</strong><br>
+    <%= @project.created_at.strftime("%d-%m-%Y") %>
+  </p><br>
+
+  <p>
+    <strong>Number of active tickets: </strong><%= @project.tickets.count %>
+  </p><br>
+
+  <p>
+    <strong>Description</strong><br>
+    <%= @project.description %>
+  </p><br>
+
+  <% if current_user.can_change_manager? && (Employee.select{ |e| e.roles.include?(Role.first) } - @project.employees).count > 0 %>
+    <%= form_for @project, :url => {:action => :add_employees} do |form| %>
+      <%= form.hidden_field :role_id, :value => '1' %>
+      <%= form.collection_select :employee_ids, (Employee.select{ |e| e.roles.include?(Role.first) } - @project.employees), :id, :full_name, multiple: true, include_blank: false %>
+      <p>
+        <%= form.submit 'Add project manager', {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+      </p>
+    <% end %>
+  <% end %><br>
+
+  <% if current_user.can_delete_project? %>
+    <%= link_to '<i class="glyphicon glyphicon-edit"></i> Edit'.html_safe, edit_project_path(@project), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %> |
+    <%= link_to '<i class="glyphicon glyphicon-edit"></i> Remove'.html_safe, project_path(@project), method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"' %>
+  <% end %><br><br>
+  <%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, projects_path, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %>
+</div>
+
+<div class = "col-xs-1" id="piechart"></div>

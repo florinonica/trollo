@@ -1,0 +1,103 @@
+<style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 20px;
+}
+</style>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js"></script>
+
+<% if current_user.can_change_report_availability? %>
+  <%= form_for @report, :url => {:action => :change_availability} do |form| %>
+    <% if @report.is_available_to_clients? %>
+      <%= form.hidden_field :available_to_clients, :value => 0 %>
+      <p>
+        <%= form.submit "Make unavailable to clients", {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%>
+      </p>
+    <% else %>
+      <%= form.hidden_field :available_to_clients, :value => 1 %>
+      <p>
+        <%= form.submit "Make available to clients", {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%>
+      </p>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div style='margin-bottom: 10px'>
+  <input id="save-pdf" type="button" value="Save as PDF" />
+</div>
+
+<div style='display: none'>
+  <div id="links" style='display:flex; background-color: white; margin-bottom: 10px'>
+
+    <% if current_user.can_see_all_charts?(@report.projects.first) %>
+      <div class='draggable'>
+        <h3>Employees </h3>
+        <div style='margin-top: 20px; margin-right: 40px; margin-bottom: 40px; width: 200px;'>
+          <% @report.users.each do |user| %>
+            <%= link_to user.full_name, user_path(user), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %><br>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <% unless @report.is_single_project_report? %>
+      <div class='draggable'>
+        <h3>Projects </h3>
+        <div style='margin-top: 20px; margin-bottom: 40px; width: 200px;'>
+          <% @report.projects.each do |project|%>
+            <%= link_to project.title, project_path(project), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %><BR>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div style="max-width: 90%; max-height:90%">
+  <%= render @report %>
+</div>
+
+<div id='dialog1' title="To do list" style='display: none;'>
+  <% @report.get_filtered_by_status("To do").each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>
+
+<div id='dialog2' title="In progress list" style='display: none;'>
+  <% @report.get_filtered_by_status("In progress").each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>
+
+<div id='dialog3' title="Dev complete list" style='display: none;'>
+  <% @report.get_filtered_by_status("Dev complete").each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>
+
+<div id='dialog4' title="Done list" style='display: none;'>
+  <% @report.get_filtered_by_status("Done").each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>
+
+<div id='dialog5' title="Task list" style='display: none;'>
+  <% @report.get_tasks.each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>
+
+<div id='dialog6' title="Subtask list" style='display: none;'>
+  <% @report.get_subtasks.each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>
+
+<div id='dialog7' title="Bug list" style='display: none;'>
+  <% @report.get_bugs.each do |t| %>
+    <p><%= link_to t.title, ticket_path(t), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'}%></p>
+  <% end %>
+</div>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trollo</title>
+    <%= include_sync_config %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/assets/jquery.fancybox.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="/assets/jquery.fancybox-buttons.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="/assets/jquery.fancybox-thumbs.css" type="text/css" media="screen" />
+
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.0rc1.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="/assets/jquery.mousewheel.pack.js"></script>
+    <script type="text/javascript" src="/assets/jquery.fancybox.pack.js"></script>
+    <script type="text/javascript" src="/assets/jquery.fancybox-buttons.js"></script>
+    <script type="text/javascript" src="/assets/jquery.fancybox-media.js"></script>
+    <script type="text/javascript" src="/assets/jquery.fancybox-thumbs.js"></script>
+  </head>
+
+<% if user_signed_in? %>
+  <div class="wrapper">
+    <nav id="sidebar">
+        <ul style='margin-left: 10px; ' class="list-unstyled components" > <br>
+          <li style=' border-top: 5px solid white; border-bottom: 5px solid white; margin-right: 15px;'>
+            <%= link_to '<i class="glyphicon glyphicon-home"></i> Home'.html_safe, root_path,  {:style => 'color:#FFFFFF; font-size: 25px; font-weight: bold; font-family: "Ubuntu", sans-serif; margin-left: 20px;'}%>
+
+            <% if controller_name == "welcome" || (controller_name == "users" && (action_name == "show" || action_name == "files")) %>
+              <ul class="collapse-unstyled components">
+                <li>
+                  <%= link_to "My profile", user_path(current_user), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+                </li>
+                <li>
+                  <%= link_to '<i class="glyphicon glyphicon-picture"></i> My Files'.html_safe, user_files_path(current_user),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                </li>
+              </ul>
+            <% end %>
+          </li><br>
+          <li style=' border-top: 5px solid white; border-bottom: 5px solid white; margin-right: 15px;' >
+            <%= link_to '<i class="glyphicon glyphicon-user"></i> Users'.html_safe, users_path, {:style => 'color:#FFFFFF; font-size: 25px; font-weight: bold; font-family: "Ubuntu", sans-serif; margin-left: 20px;'} %>
+
+            <% if controller_name == "users" && !(action_name == "show" || action_name == "files") %>
+              <ul class="collapse-unstyled components">
+
+                <% if current_user.can_create_user? %>
+                  <li>
+                    <%= link_to "Add User", new_user_path, {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+                  </li>
+                  <li>
+                    <%= link_to "Users", users_path, {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+                  </li>
+                <% end %>
+              </ul>
+            <% end %>
+          </li><br>
+          <li style=' border-top: 5px solid white; border-bottom: 5px solid white; margin-right: 15px;'>
+            <%= link_to '<i class="glyphicon glyphicon-folder-open"></i> Projects'.html_safe, projects_path, {:style => 'color:#FFFFFF; font-size: 25px; font-weight: bold; font-family: "Ubuntu", sans-serif; margin-left: 20px; '} %>
+
+            <% if controller_name == "projects" %>
+
+              <% if action_name == "show" || action_name == "dashboard" || action_name == "edit" || action_name == "events" || action_name == "reports" || action_name == "team" || action_name == "files" || action_name == "clients" || action_name == "message_board" || action_name == "reports"%>
+                <ul style= 'padding-top: 5px' class="collapse-unstyled components" >
+                  <li style = 'color:#FFFFFF; font-size: 20px; font-weight: bold; font-family: "Ubuntu", sans-serif;' > <%= @project.title %></li>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-tasks"></i> Details'.html_safe, project_path(@project), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-th-list"></i> Event Log'.html_safe, events_path(@project), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+
+                  <% if current_user.is_manager?(@project.id) || current_user.is_client?(@project) %>
+                    <li>
+                      <%= link_to '<i class="glyphicon glyphicon-comment"></i> Message Board'.html_safe, message_board_path(@project), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                    </li>
+                  <% end %>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-tower"></i> Clients'.html_safe, clients_path(@project), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-picture"></i> Files'.html_safe, files_path(@project),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-blackboard"></i> Dashboard'.html_safe, dashboard_path(@project),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+
+                  <% if current_user.can_see_project_details?%>
+                    <li>
+                      <%= link_to '<i class="glyphicon glyphicon-king"></i> Team'.html_safe, team_path(@project), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                    </li>
+                  <% end %>
+
+                  <% if current_user.can_create_report?(@project)%>
+                    <li>
+                      <%= link_to '<i class="glyphicon glyphicon-copy"></i> Reports'.html_safe, project_reports_path(@project), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                    </li>
+                  <% end %>
+                </ul>
+              <% elsif current_user.can_create_project? %>
+                <ul class="collapse-unstyled components">
+                  <li>
+                    <%= link_to "New project", new_project_path, {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %><br>
+                  </li>
+                </ul>
+              <% end %>
+            <% end %>
+          </li>
+
+          <% if controller_name == "tickets" && !(action_name == "create" || action_name == "new") %>
+            <li style=' border-bottom: 5px solid white; margin-right: 15px; padding-top: 5px; margin-left: 10px; text-align: left'>
+              <strong style ='color:#FFFFFF; font-size: 20px; font-weight: bold; font-family: "Ubuntu", sans-serif; margin-left: 20px; ' ><%= @ticket.title%></strong>
+              <ul style= 'padding-top: 5px;' class="collapse-unstyled components" >
+                <li>
+                  <%= link_to '<i class="glyphicon glyphicon-blackboard"></i> Dashboard'.html_safe, dashboard_path(@ticket.project),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                </li>
+                <li>
+                <%= link_to '<i class="glyphicon glyphicon-tasks"></i> Details'.html_safe, ticket_path(@ticket), {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                </li>
+                <li>
+                  <%= link_to '<i class="glyphicon glyphicon-picture"></i> Files'.html_safe, ticket_files_path(@ticket),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                </li>
+
+                <% if current_user.can_comment? %>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-comment"></i> Comments'.html_safe, comments_path(@ticket),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+                <% end %>
+
+                <% if @ticket.subtasks.any? %>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-duplicate"></i> Subtasks'.html_safe, subtasks_path(@ticket),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+                <% end %>
+
+                <% if @ticket.bugs.any? %>
+                  <li>
+                    <%= link_to '<i class="glyphicon glyphicon-fire"></i> Bugs'.html_safe, bugs_path(@ticket),  {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %>
+                  </li>
+                <% end %>
+              </ul>
+            </li>
+          <% end %><br>
+
+          <% if current_user.can_create_complex_report? %>
+            <li style=' border-top: 5px solid white; border-bottom: 5px solid white; margin-right: 15px;'>
+              <%= link_to '<i class="glyphicon glyphicon-list-alt"></i> Reports'.html_safe, reports_path, {:style => 'color:#FFFFFF; font-size: 25px; font-weight: bold; font-family: "Ubuntu", sans-serif; margin-left: 20px; '} %>
+
+              <% if controller_name == 'reports' %>
+                <ul class="collapse-unstyled components">
+                  <li>
+                    <%= link_to "New report", new_report_path, {:style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'} %><br>
+                  </li>
+                </ul>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+    </nav>
+  </div>
+<% end %>
+
+<body onload="startTime()">
+  <% if alert %>
+    <p class = "alert alert-danger"><%= alert %></p>
+  <% end %>
+  <div class="container">
+    <%= yield %>
+  </div>
+
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style = 'height: 80px; background-color: #04B1C8; border-color:#04B1C8; '>
+    <div class="container">
+      <div class="navbar-header">
+        <nav class="navbar-before navbar-expand-lg navbar-light bg-light">
+        </nav>
+      </div>
+        <p class="navbar-text pull-right" style= 'margin-top: 5px; margin-right: -200px; '>
+
+          <% if user_signed_in? %>
+            <strong style= 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'> Logged in as <%= current_user.email %>.</strong>
+            <%= image_tag(current_user.avatar.url(:thumb), :class => "round-image-50") %>
+            <%= link_to "Edit Profile", edit_user_registration_path, :class => 'navbar-link' ,  :style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'%>
+            <%= link_to "Logout", destroy_user_session_path, method: :delete, :class => 'navbar-link', :style => 'color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;' %>
+          <% end %>
+        </p>
+        <div id="messages">
+
+          <% if user_signed_in? && current_user.get_unread_messages_count > 0 %>
+            <%= sync partial: 'user', resource: current_user %>
+          <% end %>
+
+          <% if user_signed_in? %>
+            <%= sync_new partial: 'user1', resource: User.new %>
+          <% end %>
+        </div>
+        <div id='txt' class="navbar-text pull-left" style= 'margin-top: 25px; color:#FFFFFF; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'>
+        </div>
+    </div>
+  </nav>
+</body>
+</html>

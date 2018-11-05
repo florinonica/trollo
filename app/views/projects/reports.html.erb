@@ -1,0 +1,117 @@
+<style>
+body {
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+}
+</style>
+
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 20px; font-weight: bold; font-family: "Ubuntu"'} %>
+
+<ul class="nav nav-tabs" role="tablist" style='margin-top: 20px'>
+  <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab" style='color:white; font-size: 18px; font-weight: bold; border: transparent; border-radius: 0px; margin-right: 0px'>Reports list</a></li>
+
+  <% if current_user.is_manager?(@project.id) %>
+    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab" style='color:white; font-size: 18px; font-weight: bold; border: transparent; border-radius: 0px; margin-right: 0px'>Add report</a></li>
+  <% end %>
+</ul>
+
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane fade in active" id="home">
+    <table cellpadding=15 cellspacing=15 style='text-align: center; border-collapse: separate; border-spacing: 0 20px; margin-top: 50px'>
+      <% @project.reports.paginate(:page => params[:page], per_page:5).each do |report| %>
+        <% if current_user.can_see_report?(report) %>
+          <tr>
+            <td class="col-xs-1" style='text-align: center; border-bottom: 2px solid; padding-bottom: 30px;'>
+              <%= link_to report.report_data['title'], report_path(report), {data: {turbolinks: 'false'}, :style => 'color:#0079bf; font-size: 20px; font-weight: bold'}%><br>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
+
+    <div style = 'text-align: center'>
+      <%= will_paginate @project.reports.paginate(:page => params[:page], per_page:5), renderer: BootstrapPagination::Rails %>
+    </div>
+  </div>
+
+  <div role="tabpanel" class="tab-pane fade" id="messages" style="margin-left: 100px; "><br>
+    <%= form_with model: Report.new, local: true, :url => {:controller => :reports, :action => :create} do |form| %>
+      <%= form.hidden_field :project_ids, :value => [] << @project.id %>
+      <div style='margin-bottom: 20px; width: 500px'>
+        <%= form.label :title %><br>
+        <%= form.text_field :title, class: 'form-control' %>
+      </div>
+
+      <div style='display:flex;  margin-top:' >
+        <div>
+          <h4>Start date </h4>
+          <%= form.date_field :start_date, style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-right: 100px; margin-bottom: 20px; ' %>
+        </div>
+        <div>
+          <h4>End date </h4>
+          <%= form.date_field :end_date, style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-bottom: 20px;' %>
+        </div>
+      </div>
+
+      <div>
+        <h3>Select employees </h3>
+        <input type="checkbox" id="selectAll" value="selectAll">All<br/>
+        <div title='Select employees' style='overflow-y: scroll; height: auto; max-height:200px; width: 500px; margin-top: 20px; margin-right: 40px; margin-bottom: 40px'>
+          <%= form.collection_check_boxes :user_ids, @project.employees, :id, :full_name, multiple: true, include_hidden: false, include_blank: false do |b|%>
+            <div style='margin-bottom: 10px; margin-top: 10px; margin-left: 10px;'>
+              <%= b.check_box class: "c1" %>
+              <%= b.label %>
+            </div>
+          <%end %>
+        </div>
+      </div>
+
+      <div style='display:flex'>
+        <div style='color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-right: 200px; margin-bottom: 50px'>
+          <h4>Choose ticket type </h4>
+          <%= form.select :ticket_type, options_for_select(["All", ["Bug", "1"], ["Task", "0"]]), style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 100px; text-align: center; margin-right: 200px; margin-bottom: 50px' %>
+        </div>
+        <div style='color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 200px; text-align: center; margin-right: 200px; margin-bottom: 50px'>
+          <h4>Choose ticket status </h4>
+          <%= form.select :ticket_status, options_for_select(["All", "To do", "In progress", "Dev complete", "Done"]), style: 'color:black; font-size: 18px; font-weight: bold; font-family: "Ubuntu"; width: 100px; text-align: center; margin-right: 200px;' %>
+        </div>
+        <div style='display:flex; margin-top: 20px;' >
+          <h4 style=' margin-right: 20px;'> Make available to clients <h4>
+          <%= form.check_box :available_to_clients, style: 'width: 100px; height: 100px'%>
+        </div>
+      </div>
+
+      <div style='display:flex; align-content: stretch'>
+        <div style='display:flex; margin-top: 20px' >
+          <h4 style=' margin-right: 20px;'> Include employee performance chart <h4>
+          <%= form.check_box :include_employee_statistics, style: 'width: 100px; height: 100px'%>
+        </div>
+        <div style='display:flex; margin-top: 20px' >
+          <h4 style=' margin-right: 20px;'> Include ticket statistics <h4>
+          <%= form.check_box :include_ticket_statistics, style: 'width: 100px; height: 100px'%>
+        </div>
+        <div style='display:flex; margin-top: 20px' >
+          <h4 style=' margin-right: 20px;'> Event log <h4>
+          <%= form.check_box :include_event_log, style: 'width: 100px; height: 100px'%>
+        </div>
+      </div>
+      <div style='display:flex'>
+        <div style='display:flex; margin-top: 20px' >
+          <h4 style=' margin-right: 20px;'> Include ticket timeline<h4>
+          <%= form.check_box :include_ticket_timeline, style: 'width: 100px; height: 100px'%>
+        </div>
+        <div style='display:flex; margin-top: 20px' >
+          <h4 style=' margin-right: 20px;'> Show ticket distribution by type<h4>
+          <%= form.check_box :include_ticket_distribution_type, style: 'width: 100px; height: 100px'%>
+        </div>
+        <div style='display:flex; margin-top: 20px' >
+          <h4 style=' margin-right: 20px;'> Show ticket distribution by status<h4>
+          <%= form.check_box :include_ticket_distribution_status, style: 'width: 100px; height: 100px'%>
+        </div>
+      </div>
+      <p>
+        <%= form.submit 'Generate report', {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+      </p>
+    <% end %>
+  </div>
+</div>

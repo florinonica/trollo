@@ -1,0 +1,170 @@
+<body>
+<div class="cards-container">
+  <div class="cards-container-head">
+    <div class="cards-container-title"><%=id+' '+count.to_s%> </div>
+    <% if id == "To do" %>
+      <div class="cards-container-title">
+        <% if current_user.is_manager?(project.id) %>
+          <%= link_to '<i class="glyphicon glyphicon-plus"></i> New task'.html_safe, new_project_ticket_path(project), {:style => 'color:#0079bf; font-size: 20px; font-weight: bold, background-color: black'} %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <div class="card-container" id='<%=id%>'>
+    <% if count > 0 %>
+      <% tickets.each do |ticket|%>
+        <% if current_user.can_alter_ticket?(ticket) || current_user.is_manager?(ticket.project.id) %>
+          <div class="card-header" id='<%=ticket.id%>' style = ' border-color: lightgrey; '>
+            <div style='background-color: lightgrey; width: 100%; border-bottom: 3px solid lightgrey; border-top: 3px solid lightgrey; border-left: 3px solid lightgrey; border-right: 3px solid lightgrey; border-radius: 0px; margin-bottom: 5px; padding: 0px' >
+              <div class = "col-xs-1 " style='text-align: center; margin-right: 30px;margin-top: 10px; vertical-align: middle;'>
+                <div class='<%= ticket.get_glyph%>' style='font-size: 40px; color: <%= ticket.get_colour%>'></div>
+              </div>
+              <div  style='text-align: center'>
+                <%= link_to ticket.title, ticket_path(ticket), {:style => 'margin-left: 0px; color:#0079bf; font-size: 20px; font-weight: bold'}%>
+                <div style='text-align: center'>
+                    <% if current_user.is_manager?(ticket.project.id)%>
+                    <%= link_to '  <i class="glyphicon glyphicon-edit"></i> '.html_safe, edit_project_ticket_path(ticket.project, ticket), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> |
+                    <%= link_to '<i class="glyphicon glyphicon-remove"></i> '.html_safe, [ticket.project, ticket], method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'%> |
+                  <% end %>
+                  <%= link_to '  <i class="glyphicon glyphicon-picture"></i> '.html_safe, ticket_files_path(ticket), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> |
+                  <% if current_user.can_comment? %>
+                    <%= link_to '  <i class="glyphicon glyphicon-comment"></i> '.html_safe, comments_path(ticket), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> |
+                  <% end %>
+                  <a href="#<%=ticket.id%>" rel="group" class="fancybox2" style = ' color:#0079bf; font-size: 18px; font-weight: bold'><span class="glyphicon glyphicon-zoom-in"></span></a>
+                </div>
+              </div>
+            </div>
+            <div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; border-bottom: 2px solid black'>
+              Created at: <strong> <%= ticket.created_at.strftime("%-d/%b/%Y")%> </strong>
+            </div>
+            <% if ticket.task.presence %>
+              <div>
+                Parent task: <strong> <%= link_to ticket.task.title, ticket_path(ticket.task), {:style => 'color:#0079bf; font-size: 18px; font-family: "Ubuntu", sans-serif;'}%> </strong>
+              </div>
+            <% end %>
+            <% if current_user.can_see_project_details?%>
+              <div>
+                Creator: <%= link_to ticket.get_owner.full_name, user_path(ticket.get_owner), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+              </div>
+              <div>
+                Assigned Dev: <%= link_to ticket.get_dev.full_name, user_path(ticket.get_dev), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+              </div>
+            <% end %>
+            <div style='color: black; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif; border-bottom: 2px solid black'>Description</div>
+            <div style='border-bottom: 2px solid black'>
+              <%= ticket.description %>
+            </div>
+            <div style="text-align: center" class="row" >
+              <% if ticket.subtasks.any? %>
+                <div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif;' class = "col-xs-5" >
+                  <strong>Subtasks</strong><br>
+                  <% ticket.subtasks.each do |subtask| %>
+                    <%= link_to subtask.title, ticket_path(subtask), {:style => 'color:#0079bf; font-size: 18px; font-family: "Ubuntu", sans-serif;'}%> <br>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <% if ticket.bugs.any? %>
+                <div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; ' class = "col-xs-5" >
+                  <strong>Bugs</strong><br>
+                  <% ticket.bugs.each do |bug| %>
+                    <%= link_to bug.title, ticket_path(bug), {:style => 'color:#0079bf; font-size: 18px; font-family: "Ubuntu", sans-serif;'}%> <br>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+
+          </div>
+        <% else %>
+          <div class="card-header-1" id='<%=ticket.id%>' style = 'font-color:#FFFFFF; border-color: lightgrey; '>
+            <div style='background-color: lightgrey; width: 100%; border-bottom: 3px solid lightgrey; border-top: 5px solid lightgrey; border-left: 3px solid lightgrey; border-right: 3px solid lightgrey; border-radius: 0px; margin-bottom: 5px; padding: 0px' >
+              <div class = "col-xs-1 " style='text-align: center; margin-right: 20px'>
+                <div class='<%= ticket.get_glyph%>' style='font-size: 40px; color: <%= ticket.get_colour%>'></div>
+              </div>
+              <div  style='text-align: center'>
+                <%= link_to ticket.title, ticket_path(ticket), {:style => 'margin-left: 0px; color:#0079bf; font-size: 20px; font-weight: bold'}%>
+                <div style='text-align: center'>
+                  <%= link_to '  <i class="glyphicon glyphicon-picture"></i> '.html_safe, ticket_files_path(ticket), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> |
+                  <% if current_user.can_comment? %>
+                    <%= link_to '  <i class="glyphicon glyphicon-comment"></i> '.html_safe, comments_path(ticket), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> |
+                  <% end %>
+                  <a href="#<%=ticket.id%>" rel="group" class="fancybox2" style = ' color: #0079bf; font-size: 18px; font-weight: bold'><span class="glyphicon glyphicon-zoom-in"></span></a>
+                </div>
+              </div>
+            </div>
+            <div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; border-bottom: 2px solid black'>
+              Created at: <strong> <%= ticket.created_at.strftime("%-d/%b/%Y")%> </strong>
+            </div>
+            <% if ticket.task.presence %>
+              <div>
+                Parent task: <strong> <%= link_to ticket.task.title, ticket_path(ticket.task), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%> </strong>
+              </div>
+            <% end %>
+            <% if current_user.can_see_project_details?%>
+              <div>
+                Creator: <%= link_to ticket.get_owner.full_name, user_path(ticket.get_owner), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+              </div>
+              <div>
+                Assigned Dev: <%= link_to ticket.get_dev.full_name, user_path(ticket.get_dev), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%>
+              </div>
+            <% end %>
+            <div style='color: black; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif; border-bottom: 2px solid black'>Description</div>
+            <div style='border-bottom: 2px solid black'>
+              <%= ticket.description %>
+            </div>
+            <div class="row" style="text-align: center">
+              <% if ticket.subtasks.any? %>
+                <div class = "col-xs-5" style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif;'>
+                  <strong>Subtasks</strong><br>
+                  <% ticket.subtasks.each do |subtask| %>
+                    <%= link_to subtask.title, ticket_path(subtask), {:style => 'color:#0079bf; font-size: 18px; font-family: "Ubuntu", sans-serif;'}%> <br>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <% if ticket.bugs.any? %>
+                <div class = "col-xs-5" style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif;'>
+                  <strong>Bugs</strong><br>
+                  <% ticket.bugs.each do |bug| %>
+                    <%= link_to bug.title, ticket_path(bug), {:style => 'color:#0079bf; font-size: 18px; font-family: "Ubuntu", sans-serif;'}%> <br>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+</body>
+
+<script>
+ $(document).on('mouseover', function() {
+    $( '.card-header' ).draggable({
+        appendTo: "body",
+        helper: "clone"
+      });
+    $( '.card-container' ).droppable({
+      drop: function( event, ui ) {
+        var roomid= document.getElementById(ui.draggable.attr('id')).parentNode.id;
+        var id = ui.draggable.attr('id');
+        if((this.id == "In progress" && roomid == "To do") ||
+          (this.id == "Dev complete" && roomid == "In progress") ||
+          (this.id == "Done" && roomid == "Dev complete") ||
+          (this.id == "To do" && roomid == "Done" && <%= current_user.is_tester?(@project.id)%>) ||
+          (this.id == "To do" && roomid == "Dev complete" && <%= current_user.is_tester?(@project.id)%>) || (<%= current_user.is_manager?(@project.id)%>))
+        {
+          $( this ).find( ".placeholder" ).hide();
+          $(ui.draggable).appendTo(this);
+          $.ajax({
+            url: '/tickets/'+ id + '/change_status',
+            type: 'PATCH',
+            data: { status: this.id }
+          });
+        }
+        else { alert("Nice try :)");}
+      }
+    });
+  });
+</script>

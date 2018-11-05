@@ -1,0 +1,36 @@
+<p style='font-size: 18px; font-weight: bold; font-family: "Ubuntu"'>
+  <%= comment.commenter %>
+</p>
+
+<div style='color: black; font-size: 16px; font-family: "Ubuntu", sans-serif;'>
+  <strong>Created at: </strong> <%= comment.created_at.strftime("%d-%m-%Y")%>
+</div>
+
+<p style='font-size: 16px; font-family: "Ubuntu"'>
+  <%= comment.body %>
+</p>
+
+<div id="attachments">
+  <% comment.attachments.each do |asset| %>
+
+    <% if asset.is_image?%>
+      <a class="fancybox" rel="<%=comment.id%>" href='<%=asset.file.url%>' ><img src='<%=asset.file.url%>' height=100 width=100 alt="" /></a>
+    <% elsif asset.is_video?%>
+      <%= video_tag asset.file.url, size: "100x100", controls: true, autobuffer: true, poster:"video.png" %>
+    <% elsif asset.is_audio?%>
+      <%= audio_tag asset.file.url, controls: true %>
+    <% else %>
+      <%= link_to "Download", asset.file.url, :target=> "_blank" %>
+    <% end %>
+  <% end %>
+</div>
+
+<p>
+  <% if current_user.can_delete_comment?(comment.id) %>
+    <%=link_to 'Delete', [comment.ticket, comment], method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 14px; font-weight: bold; font-family: "Ubuntu"'%> |
+  <% end %>
+
+  <% if current_user.can_edit_comment?(comment.id) %>
+    <%= link_to 'Edit', edit_ticket_comment_path(comment.ticket, comment), {:style => 'color:#0079bf; font-size: 14px; font-weight: bold; font-family: "Ubuntu"'} %>
+  <% end %>
+</p><br>

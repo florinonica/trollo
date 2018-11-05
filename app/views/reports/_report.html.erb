@@ -1,0 +1,181 @@
+<style>
+  body {
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 20px;
+  }
+</style>
+
+<h1 id="title"style='background-color: white;'>
+  <%= @report.report_data['title'] %>
+</h1>
+<h3 id="period" style='background-color: white;'>
+  <%= "Report period: " + @report.report_data['start_date'] + " - " + @report.report_data['end_date']%>
+</h3>
+
+<% if @report.report_data['include_ticket_statistics'] == '1' %>
+  <div id='average' class='draggable' style='background-color: white;'>
+    <h3>Average ticket completion time </h3>
+    <%= @report.get_average_ticket_solving_time.round(2).to_s + " Hours" %>
+  </div>
+  <div id='versions' class='draggable' style='background-color: white;'>
+    <h3>Ticket with most versions </h3>
+    <%= link_to @report.get_max_versions_ticket.title, ticket_path(@report.get_max_versions_ticket) %> - <%= @report.get_max_versions_ticket.get_versions_count + 1 %> versions
+    <h3>Ticket with fewest versions </h3>
+    <%= link_to @report.get_min_versions_ticket.title, ticket_path(@report.get_min_versions_ticket) %> - <%= @report.get_min_versions_ticket.get_versions_count + 1 %> versions
+  </div>
+<% end %>
+
+<% if @report.report_data['include_ticket_distribution_status'] == '1' && @report.report_data['ticket_status'] == "All" %>
+  <div id="donutchart" class='draggable' style=' width: 10%; height: 10%;'></div>
+<% end %>
+
+<% if @report.report_data['include_ticket_timeline'] == '1' %>
+  <div style='display:flex' class='draggable'>
+    <div id='chart_div' style='width: 1200px; height: 500px; margin-left: -100px'></div>
+  </div>
+<% end %>
+
+<% if @report.report_data['include_ticket_distribution_type'] == '1' && @report.report_data['ticket_type'] == "All"%>
+  <div id="piechart" class='draggable' style="width: 450px"></div>
+<% end %>
+
+<% if current_user.can_see_all_charts?(@report.projects.first) && @report.report_data['include_employee_statistics'] == '1' %>
+  <div id="employees" style='height: 700px; margin-bottom: 50px;' class='draggable'></div>
+<% end %>
+
+<div id='events' class='draggable' style='background-color: white; width: 90%'>
+  <% @report.get_event_list.each do |event| %>
+    <div style='padding-bottom: 15px; padding-top: 15px; padding-left: 20px; width: 90%' >
+      <strong> <%= event.created_at.strftime("%d-%m-%Y %H:%M") + ":" %> </strong>
+      <%= event.message %>
+    </div>
+  <% end %>
+</div>
+
+<script type="text/javascript">
+  var doc = new jsPDF();
+  function initializeDoc() {}
+  doc.setPage(1);
+  doc.addHTML($("#title"), 15, 10, {'background': '#FFF'} );
+  doc.addHTML($("#period"), 15, 20, {'background': '#FFF'} );
+  doc.addHTML($("#average"), 15, 30, {'background': '#FFF'} );
+  doc.addHTML($("#versions"), 15, 45, {'background': '#FFF'} );
+  google.charts.load('current', {'packages':['corechart']});
+  google.charts.load('current', {'packages':['bar']});
+  google.charts.setOnLoadCallback(drawChart);
+  google.charts.setOnLoadCallback(drawEmployees);
+  google.charts.setOnLoadCallback(drawChart1);
+  google.charts.setOnLoadCallback(drawChart2);
+  var btnSave = document.getElementById('save-pdf');
+  function drawEmployees() {
+    <% if @report.report_data['include_employee_statistics'] == '1' %>
+      var data = google.visualization.arrayToDataTable([
+        ['Employee', 'Tickets completed', 'Total tickets'],
+        <% @report.users.select{|user| user.tasks.count > 0}.each do |user| %>
+          ['<%= user.full_name %>', <%= user.tasks.where(:status => 'Done').count + user.tasks.where(:status => 'Dev complete').count %>, <%= user.tasks.count %>],
+          <% end %>
+      ]);
+      var options = {
+        chart: { title: 'Employee Performance'},
+        bars: 'horizontal', 'background': '#FFF'
+      };
+      var chart = new google.visualization.BarChart(document.getElementById('employees'));
+      chart.draw(data, options);
+      doc.addPage();
+      doc.addImage(chart.getImageURI(), 10, 50, 200, 200);
+    <% end %>
+  }
+
+  function drawChart1() {
+    <% if @report.report_data['include_ticket_timeline'] == '1' %>
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Tickets created', 'Tickets done'],
+        <% (@report.report_data['start_date'].to_date..@report.report_data['end_date'].to_date).each do |day| %>
+          ['<%= day.strftime("%Y-%-m-%-d").to_s %>', <%= @report.get_filtered_by_created(day).count - @report.get_filtered_by_created(day - 1).count %>, <%= @report.get_filtered_by_ended(day).count - @report.get_filtered_by_ended(day - 1).count %>],
+        <% end %>
+      ]);
+      var options = {
+        title: 'Progress timeline',
+        curveType: 'function',
+        'background': '#FFF',
+        legend: { position: 'bottom' }
+      };
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+      doc.setPage(1);
+      doc.addImage(chart.getImageURI(), 5, 145, 200, 100);
+    <% end %>
+  }
+
+  function drawChart2() {
+    <% if @report.report_data['include_ticket_distribution_type'] == '1' && @report.report_data['ticket_type'] == "All"%>
+      var data = google.visualization.arrayToDataTable([
+        ['Ticket type', 'Number of tickets'],
+        ['Tasks', <%= @report.get_tasks.count %>],
+        ['Subtasks', <%= @report.get_subtasks.count %>],
+        ['Bugs', <%= @report.get_bugs.count %>]
+      ]);
+      var options = { title: 'Tickets distribution', 'width': 550, 'height': 450, 'background': '#FFF'};
+      var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+      function selectHandler() {
+        var selectedItem = chart.getSelection()[0];
+        if (selectedItem) {
+          var topping = data.getValue(selectedItem.row, 0);
+          if (topping == "Tasks") {
+            $( "#dialog5" ).dialog();
+          }
+          else if (topping == "Subtasks") {
+            $( "#dialog6" ).dialog();
+          }
+          else if (topping == "Bugs") {
+            $( "#dialog7" ).dialog();
+          }
+        }
+      }
+      google.visualization.events.addListener(chart, 'select', selectHandler);
+      chart.draw(data, options);
+      doc.setPage(2);
+      doc.addImage(chart.getImageURI(), 5, 5, 100, 80);
+      doc.addPage();
+      doc.addHTML($("#events"), 15, 10, {'background': '#FFF'} );
+    <% end %>
+  }
+
+  function drawChart() {
+    <% if @report.report_data['include_ticket_distribution_status'] == '1' && @report.report_data['ticket_status'] == "All" %>
+      var data = google.visualization.arrayToDataTable([
+      ['Ticket with status', 'Number of tickets'],
+      ['To do', <%= @report.get_filtered_by_status("To do").count %>],
+      ['In progress', <%= @report.get_filtered_by_status("In progress").count %>],
+      ['Dev complete', <%= @report.get_filtered_by_status("Dev complete").count %>],
+      ['Done', <%= @report.get_filtered_by_status("Done").count %>]]);
+      var options = {title: "Progress status", titleTextStyle: {color: 'black', fontName: 'Ubuntu', fontSize: 20}, pieHole: 0.4, 'width':650, 'height':500, padding: 0, margin: 0, pieSliceTextStyle: {color: 'white', fontName: 'Ubuntu', fontSize: 18}, legendTextStyle: {color: 'black', fontName: 'Ubuntu', fontSize: 18}};
+      function selectHandler() {
+        var selectedItem = chart.getSelection()[0];
+        if (selectedItem) {
+          var topping = data.getValue(selectedItem.row, 0);
+          if (topping == "To do") {
+            $( "#dialog1" ).dialog();
+          }
+          else if (topping == "In progress") {
+            $( "#dialog2" ).dialog();
+          }
+          else if (topping == "Dev complete") {
+            $( "#dialog3" ).dialog();
+          }
+          else if (topping == "Done") {
+            $( "#dialog4" ).dialog();
+          }
+        }
+      }
+      var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+      google.visualization.events.addListener(chart, 'select', selectHandler);
+      chart.draw(data, options);
+      btnSave.addEventListener('click', function () {
+        doc.setPage(1);
+        doc.addImage(chart.getImageURI(), 10, 85, 100, 75);
+        doc.save('chart.pdf');
+      }, false);
+    <% end %>
+  }
+</script>

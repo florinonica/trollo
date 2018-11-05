@@ -1,0 +1,128 @@
+<style>
+body { 
+    font-family: 'Ubuntu', sans-serif;
+    font-size: 18px;
+}
+</style> 
+<% if flash[:error].present? %>
+  <p class='alert alert-danger'>
+    <%= flash[:error].html_safe %>
+  </p>
+<% end %>
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+<br>
+<h3><strong><%= @ticket.title %></strong></h3><br>
+<% if @ticket.task.presence %>
+  <div>
+    <strong>Parent task:  <%= link_to @ticket.task.title, ticket_path(@ticket.task), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%> </strong>
+  </div>
+<% end %>
+<% if current_user.can_see_project_details? %>
+  <div style='font-weight: bold; padding-bottom: 5px'>
+    Creator: <%= link_to @ticket.get_owner.full_name, user_path(@ticket.get_owner), {:style => 'color: #0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%> 
+  </div>
+  <div style='font-weight: bold; padding-bottom: 5px'>
+    Assigned Dev: <%= link_to @ticket.get_dev.full_name, user_path(@ticket.get_dev), {:style => 'color: #0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu", sans-serif;'}%> 
+  </div>
+<% end %>
+
+<div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; padding-bottom: 5px'>
+  <strong>Created at: </strong> <%= @ticket.created_at.strftime("%d-%B-%Y %H:%M")%> 
+</div>
+
+<div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; padding-bottom: 5px'>
+  <% if @ticket.start_at.nil?%>
+    TBA
+  <% else %>
+    <strong>Started at: </strong> <%= @ticket.start_at.strftime("%d-%B-%Y %H:%M")%> 
+  <% end %>
+</div>
+
+<div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; padding-bottom: 5px'>
+  <% if @ticket.completed_at.nil?%>
+    <strong>Development complete at: </strong>TBA 
+  <% else %>
+    <strong>Development complete at: </strong> <%= @ticket.completed_at.strftime("%d-%B-%Y %H:%M")%>
+  <% end %>
+</div>
+
+<div style='color: black; font-size: 18px; font-family: "Ubuntu", sans-serif; padding-bottom: 5px'>
+  <% if @ticket.end_at.nil?%>
+    <strong>Done at: </strong>TBA
+  <% else %>
+    <strong>Done at: </strong> <%= @ticket.end_at.strftime("%d-%B-%Y %H:%M")%>
+  <% end %> 
+</div>
+
+<h4><strong>Description</strong></h4>
+<div class="row" >
+  <div class="col-xs-3">
+    <%= @ticket.description %>
+  </div>
+</div><br>
+
+<p>
+  <% if current_user.can_delete_ticket?(@ticket) %>
+    <%= link_to '<i class="glyphicon glyphicon-edit"></i> Edit'.html_safe, edit_project_ticket_path(@ticket.project, @ticket), {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %> | 
+    <%= link_to '<i class="glyphicon glyphicon-remove"></i> Delete'.html_safe, [@ticket.project, @ticket], method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'%>
+  <% end %>
+</p><br>
+
+<% if current_user.can_add_subtask_or_bug?(@ticket) && !@ticket.task.presence%>
+  <button class="btn btn-info collapsed" onclick="display(2)" style='font-size: 18px; font-weight: bold; font-family: "Ubuntu"'>
+    <span class="glyphicon glyphicon-collapse-down"></span> 
+    <% if current_user.is_tester?(@ticket.project_id) %>
+      Add Bug 
+    <% elsif current_user.is_dev?(@ticket.project_id)%>
+      Add Subtask
+    <% else %>
+      Add Bug/Subtask
+    <% end %>
+  </button>
+<br>
+  <div id = "add" style ='display: none;'>
+  <%= form_for [@ticket.project, Ticket.new] do |form| %>
+    <%= form.hidden_field :task_id, :value => @ticket.id%>
+    <%= form.hidden_field :status, :value => "To do"%>
+    <p>
+      <%= form.label :title %><br>
+      <%= form.text_field :title, class: 'form-control', style: 'width: 500px' %>
+    </p>
+    <p>
+      <%= form.label :description %><br>
+      <%= form.text_area :description, class: 'form-control', style: 'width: 500px' %>
+    </p>
+    <div class="form-group">
+      <%= form.label :priority %><br>
+      <%= form.select :priority, ["High", "Medium", "Low"]%>
+      <br />
+    </div>
+
+    <div class="row">
+      <div class="col-xs-4">
+        <%= form.label :files %>
+        <%= form.file_field :files, :multiple => true%>
+      </div>
+    </div>
+    <br>
+    <% if current_user.is_tester?(@ticket.project_id)  %>
+      <%= form.hidden_field :type, :value => "Bug"%>
+    <% elsif current_user.is_dev?(@ticket.project_id) %>
+      <%= form.hidden_field :type, :value => "Task"%>
+    <% else %>
+      <div class="form-group">
+        <%= form.label :type %><br>
+        <%= form.select :type, ["Bug", "Task"]%>
+        <br />
+      </div>
+    <% end %>
+    <p>
+      <%= form.label :Developer %><br>
+      <%= form.select :dev_id, @ticket.project.project_workers.select{|p| p.role_id == 2}.collect {|p| [Employee.find(p.user_id).full_name, p.user_id ]}, include_blank: true %>
+    </p>
+    <p>
+      <%= form.submit "Submit", {class: "btn btn-info collapsed", :style => 'font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+    </p>
+  <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,20 @@
+<row style='display: flex; width: 1200px; flex-wrap: wrap;' id="attachments">
+  <% attachments.each do |asset| %>
+    <div style='display: inline-block; width: 400px; padding-left: 150px; padding-right: 150px;  padding-bottom: 50px;'>
+        <% if asset.is_image?%>
+          <a class="fancybox" rel="group" href='<%=asset.file.url%>' ><img src='<%=asset.file.url%>' height=100 width=100 alt="" /></a><%= link_to "Download", asset.file.url(:original, false), :target=> "_blank", :style => 'color:#0079bf; font-size: 18px; font-weight: bold'%><br>
+        <% elsif asset.is_video?%>
+          <%= video_tag asset.file.url, size: "100x100", controls: true, autobuffer: true, poster:"video.png" %>
+          <%= link_to "Download", asset.file.url(:original, false), :target=> "_blank", :style => 'color:#0079bf; font-size: 18px; font-weight: bold'%><br>
+        <% elsif asset.is_audio?%>
+          <%= audio_tag asset.file.url, width: "100", controls: true %>
+          <%= link_to "Download", asset.file.url(:original, false), :target=> "_blank", :style => 'color:#0079bf; font-size: 18px; font-weight: bold'%><br>
+        <% else %>
+          <%= link_to asset.file_file_name, asset.file.url, :target=> "_blank", :style => 'color:#0079bf; font-size: 15px; font-weight: bold', class: "glyphicon glyphicon-save"%>
+        <% end %>
+        <% if current_user.can_delete_attachment?(asset) %>
+          <%= link_to '<i class="glyphicon glyphicon-remove"></i> Delete'.html_safe, attachment_path(asset), method: :delete, data: { confirm: 'Are you sure?' }, :style => 'color:#0079bf; font-size: 18px; font-weight: bold' %>
+        <% end %>
+    </div>
+  <% end %>
+</row>

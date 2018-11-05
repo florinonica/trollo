@@ -1,0 +1,10 @@
+<style type="text/css">
+	body {background-color: #F8F4A8;}
+</style>
+<div class='board' id='board' style='overflow-y: scroll; height: 700px; width: 1700; margin: -20px -100px; margin-right: -250px; border-bottom:5px solid black'>
+	<%= sync_new partial: 'post1', resource: Post.new, direction: :prepend, scope: @project %>
+  <%= sync partial: 'post', collection: @project.posts.order("created_at DESC"), direction: :prepend, scope: @project %>
+</div><br><br>
+
+<%= link_to '<i class="glyphicon glyphicon-arrow-left"></i> Back'.html_safe, :back, {:style => 'color:#0079bf; font-size: 18px; font-weight: bold; font-family: "Ubuntu"'} %>
+<%= link_to '<i class="glyphicon glyphicon-comment"></i> Post message'.html_safe, new_project_post_path(@project), {class: "btn btn-info collapsed", :style => ';color:white; font-size: 18px; font-weight: bold; float: right'} %>

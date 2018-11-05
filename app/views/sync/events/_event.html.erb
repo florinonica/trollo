@@ -1,0 +1,5 @@
+<%= include_sync_config %>
+<div style='border-bottom: 1px solid black; padding-bottom: 15px; padding-top: 15px; padding-left: 20px'>
+  <strong> <%= event.created_at.strftime("%d-%m-%Y %H:%M") + ":" %> </strong>
+  <%= event.message %>
+</div>

@@ -1,0 +1,40 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ </head>
+
+<div class="board-container">
+  <div class="board-content" >
+    <div style='text-align: left; display: flex; margin-left: 10px; padding-bottom: 0px'>
+      <%= form_tag dashboard_path, :method => 'get', :id => "tickets_search" do%>
+        <%= select_tag :search, options_for_select(["All", ["Bug", "1"], ["Task", "0"], "Only mine - Dev", "Only mine - Owner"]), style: 'color:black; font-size: 17px; font-weight: bold; font-family: "Ubuntu"; width: 100px; text-align: center' %>
+      <% end %>
+      <% if current_user.can_undo?%>
+        <%= form_tag undo_path , method: :post, :url => {:controller => :tickets, :action => :undo} do %>
+          <%= submit_tag 'Undo', style: 'color:black; font-size: 15.5px; font-weight: bold; font-family: "Ubuntu"; width: 100px; text-align: center'%>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="cards-container-head">
+      <div class="cards-container-title" style='color:#FFFFFF; font-size: 25px;'></div>
+    </div>
+    <div class="cards">
+      <div  id="m" class="cards" >
+        <%= render partial: "card", locals: {id: "To do", project: @project, count: @project.get_tasks_to_do.search(params[:search], current_user).count, tickets: @project.get_tasks_to_do.search(params[:search], current_user)} %>
+      </div>
+      <div  id="m1" class="cards">
+        <%= render partial: "card", locals: {id: "In progress", project: @project, count: @project.get_tasks_in_progress.search(params[:search], current_user).count, tickets: @project.get_tasks_in_progress.search(params[:search], current_user)} %>
+      </div>
+      <div  id="m2" class="cards">
+        <%= render partial: "card", locals: {id: "Dev complete", project: @project, count: @project.get_tasks_dev_complete.search(params[:search], current_user).count, tickets: @project.get_tasks_dev_complete.search(params[:search], current_user)} %>
+      </div>
+      <div  id="m3" class="cards">
+        <%= render partial: "card", locals: {id: "Done", project: @project, count: @project.get_tasks_done.search(params[:search], current_user).count, tickets: @project.get_tasks_done.search(params[:search], current_user)} %>
+      </div>
+    </div>
+  </div>
+</div><body>
+</body>
